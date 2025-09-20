@@ -1,16 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Timer } from './componentes/Timer';
 import { Header } from './componentes/Header';
 
 const colores = ['#f7dc6f', '#4356ea', '#0bff1f', '#f7931e'];
 
-export default function App() {
+const Tab = createBottomTabNavigator();
+
+
+function PomodoroScreen({ navigation }) {
   const [isActive, setIsActive] = useState(false);
-  const [time, setTime] = useState(25 * 60); 
+  const [time, setTime] = useState(25 * 60);
   const [isWorking, setIsWorking] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0); 
+  const [currentTime, setCurrentTime] = useState(0);
   const [customTime, setCustomTime] = useState('');
 
   useEffect(() => {
@@ -66,11 +71,11 @@ export default function App() {
         <View style={styles.customInputContainer}>
           <TextInput
             style={styles.input}
-            keyboardType="numeric" // Muestra teclado numérico en móviles
-            value={customTime} // Valor del input controlado por el estado customTime
+            keyboardType="numeric" 
+            value={customTime} 
             onChangeText={(text) => {
-              const numericText = text.replace(/[^0-9]/g, ''); // Elimina todo lo que no sea dígito (ej: letras, puntos, etc.)
-              setCustomTime(numericText); // Actualiza el estado del input con solo los números
+              const numericText = text.replace(/[^0-9]/g, ''); 
+              setCustomTime(numericText); 
               setTime((parseInt(numericText) || 0) * 60);
             }}
           />
@@ -85,6 +90,161 @@ export default function App() {
 
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+function DescansoCortoScreen() {
+  const [isActive, setIsActive] = useState(false);
+  const [time, setTime] = useState(5 * 60);
+
+  useEffect(() => {
+    let interval = null;
+
+    if (isActive) {
+      interval = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1) {
+            setIsActive(false);
+            return 5 * 60;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  function handleStartStop() {
+    setIsActive(!isActive);
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colores[1] }]}>
+      <Timer time={time} />
+
+      <TouchableOpacity onPress={handleStartStop} style={styles.boton}>
+        <Text style={styles.textboton}>{isActive ? 'STOP' : 'START'}</Text>
+      </TouchableOpacity>
+
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+function DescansoLargoScreen() {
+  const [isActive, setIsActive] = useState(false);
+  const [time, setTime] = useState(15 * 60);
+
+  useEffect(() => {
+    let interval = null;
+
+    if (isActive) {
+      interval = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1) {
+            setIsActive(false);
+            return 15 * 60;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  function handleStartStop() {
+    setIsActive(!isActive);
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colores[2] }]}>
+      <Timer time={time} />
+
+      <TouchableOpacity onPress={handleStartStop} style={styles.boton}>
+        <Text style={styles.textboton}>{isActive ? 'STOP' : 'START'}</Text>
+      </TouchableOpacity>
+
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+function PersonalizadoScreen() {
+  const [isActive, setIsActive] = useState(false);
+  const [time, setTime] = useState(0);
+  const [customTime, setCustomTime] = useState('');
+
+  useEffect(() => {
+    let interval = null;
+
+    if (isActive) {
+      interval = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1) {
+            setIsActive(false);
+            return (parseInt(customTime) || 0) * 60;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isActive, customTime]);
+
+  function handleStartStop() {
+    setIsActive(!isActive);
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colores[3] }]}>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={customTime}
+        onChangeText={(text) => {
+          const numericText = text.replace(/[^0-9]/g, '');
+          setCustomTime(numericText);
+          setTime((parseInt(numericText) || 0) * 60);
+        }}
+      />
+      <Timer time={time} />
+
+      <TouchableOpacity onPress={handleStartStop} style={styles.boton}>
+        <Text style={styles.textboton}>{isActive ? 'STOP' : 'START'}</Text>
+      </TouchableOpacity>
+
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: { backgroundColor: '#0f0f0cff', elevation: 10, shadowOpacity: 0 }, 
+          tabBarIndicatorStyle: { backgroundColor: '#eb1616', height: 3 }, 
+          tabBarLabelStyle: { fontWeight: 'bold', fontSize: 14 }, 
+          tabBarActiveTintColor: '#4c4747ff', 
+          tabBarInactiveTintColor: '#ffffffff', 
+        }}
+      >
+        <Tab.Screen name="Pomodoro" component={PomodoroScreen  } />
+        <Tab.Screen name="Descanso Corto" component={DescansoCortoScreen} />
+        <Tab.Screen name="Descanso Largo" component={DescansoLargoScreen} />
+        <Tab.Screen name="Personalizado" component={PersonalizadoScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
