@@ -239,7 +239,7 @@ export default function App() {
           tabBarInactiveTintColor: '#ffffffff', 
         }}
       >
-        <Tab.Screen name="Pomodoro" component={PomodoroScreen  } />
+        
         <Tab.Screen name="Descanso Corto" component={DescansoCortoScreen} />
         <Tab.Screen name="Descanso Largo" component={DescansoLargoScreen} />
         <Tab.Screen name="Personalizado" component={PersonalizadoScreen} />
